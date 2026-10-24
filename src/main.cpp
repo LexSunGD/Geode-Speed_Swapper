@@ -8,7 +8,7 @@ class $modify(PauseLayer) {
         if (!PauseLayer::init()) return false;
 
         auto playLayer = PlayLayer::get();
-        if (!playLayer) return true;
+        if (!playLayer || !playLayer->m_levelSettings) return true;
 
         // 1. Buscar el menú derecho original de la pausa
         auto menu = this->getChildByID("right-button-menu");
@@ -25,14 +25,14 @@ class $modify(PauseLayer) {
         iconOff->setPosition(spriteOff->getContentSize() / 2);
         spriteOff->addChild(iconOff);
 
-        // 3. Crear el botón interruptor e iniciarlo según el estado del nivel
+        // 3. Crear el botón interruptor e iniciarlo según la configuración del nivel
         auto toggleBtn = CCMenuItemToggler::create(
             spriteOff, 
             spriteOn, 
             this,
             menu_selector(PauseLayer::onToggleTwoPlayer)
         );
-        toggleBtn->toggle(playLayer->m_isTwoPlayerMode);
+        toggleBtn->toggle(playLayer->m_levelSettings->m_twoPlayerMode);
         toggleBtn->setID("toggle-2p-button"_spr);
 
         // 4. Añadir al menú lateral
@@ -42,11 +42,11 @@ class $modify(PauseLayer) {
         return true;
     }
 
-    // 5. Función ultracorta para alternar el estado
+    // 5. Función para alternar el estado apuntando a m_levelSettings
     void onToggleTwoPlayer(CCObject* sender) {
         auto playLayer = PlayLayer::get();
-        if (playLayer) {
-            playLayer->m_isTwoPlayerMode = !playLayer->m_isTwoPlayerMode;
+        if (playLayer && playLayer->m_levelSettings) {
+            playLayer->m_levelSettings->m_twoPlayerMode = !playLayer->m_levelSettings->m_twoPlayerMode;
         }
     }
 };
