@@ -4,51 +4,70 @@
 using namespace geode::prelude;
 
 class $modify(MyPauseLayer, PauseLayer) {
+    // Declaramos un puntero para actualizar el botón si es necesario
+    CCMenuItemToggler* m_toggleBtn = nullptr;
+
     bool init() {
         if (!PauseLayer::init()) return false;
 
-        // 1. Obtener el menú de botones derecho o izquierdo (usualmente el de la derecha tiene espacio)
-        // O puedes crear un nuevo CCMenu y añadirlo a la capa
+        auto playLayer = PlayLayer::get();
+        if (!playLayer) return true;
+
+        // 1. Obtener el estado actual del nivel (si ya es de 2 jugadores o no)
+        bool isTwoPlayer = playLayer->m_isTwoPlayerMode;
+
+        // 2. Buscar el menú derecho de la pausa para mantener la estética original
         auto menu = this->getChildByID("right-button-menu");
         if (!menu) {
-            // Si no se encuentra por ID, usamos el método alternativo creando un menú propio
             menu = CCMenu::create();
             menu->setPosition({0, 0});
             this->addChild(menu);
         }
 
-        // 2. Crear el sprite del botón (puedes usar texturas del juego como "GJ_editBtn_001.png" o texto)
-        auto buttonSprite = CCSprite::createWithSpriteFrameName("GJ_editBtn_001.png");
-        
-        // 3. Crear el botón y asignarle la función (callback)
-        auto toggle2PBtn = CCMenuItemSpriteExtra::create(
-            buttonSprite,
+        // 3. Crear los sprites para el botón circular (On/Off)
+        // Usamos círculos verdes y rojos estándar de la interfaz de Geometry Dash
+        auto spriteOn = CCSprite::createWithSpriteFrameName("GJ_button_01.png"); // Círculo Verde
+        auto iconOn = CCSprite::createWithSpriteFrameName("GJ_editBtn_001.png"); // Ajusta el icono aquí si tienes uno de "2P"
+        iconOn->setPosition(spriteOn->getContentSize() / 2);
+        spriteOn->addChild(iconOn);
+
+        auto spriteOff = CCSprite::createWithSpriteFrameName("GJ_button_02.png"); // Círculo Rojo
+        auto iconOff = CCSprite::createWithSpriteFrameName("GJ_editBtn_001.png");
+        iconOff->setPosition(spriteOff->getContentSize() / 2);
+        spriteOff->addChild(iconOff);
+
+        // 4. Crear el Toggler (Botón con estado On/Off alternable)
+        // El tercer argumento define el estado inicial basado en el nivel
+        m_fields->m_toggleBtn = CCMenuItemToggler::create(
+            spriteOff, // Estado desactivado (1 jugador)
+            spriteOn,  // Estado activado (2 jugadores)
             this,
             menu_selector(MyPauseLayer::onToggleTwoPlayer)
         );
 
-        // 4. Posicionar el botón de forma segura si creaste un menú propio
-        // Si lo añadiste a "right-button-menu", puedes usar menu->addChild(toggle2PBtn); y luego menu->updateLayout();
-        toggle2PBtn->setPosition({100, 100}); // Ajusta las coordenadas según prefieras
-        toggle2PBtn->setID("toggle-2p-button"_spr);
+        // Definir visualmente el estado guardado en el nivel
+        m_fields->m_toggleBtn->toggle(isTwoPlayer);
+        m_fields->m_toggleBtn->setID("toggle-2p-button"_spr);
 
-        menu->addChild(toggle2PBtn);
+        // 5. Añadir al menú y ordenar el diseño automáticamente
+        menu->addChild(m_fields->m_toggleBtn);
+        menu->updateLayout();
 
         return true;
     }
 
     void onToggleTwoPlayer(CCObject* sender) {
-        // 5. Acceder al PlayLayer actual (la capa del nivel en ejecución)
         auto playLayer = PlayLayer::get();
         if (!playLayer) return;
 
-        // 6. Cambiar el estado de la variable de dos jugadores
-        // m_levelSettings guarda la configuración inicial, pero m_isTwoPlayerMode maneja las físicas en tiempo real
-        bool currentState = playLayer->m_isTwoPlayerMode;
-        playLayer->m_isTwoPlayerMode = !currentState;
+        // Invertir el estado actual
+        bool newState = !playLayer->m_isTwoPlayerMode;
+        
+        // Aplicar el cambio al gameplay en tiempo real
+        playLayer->m_isTwoPlayerMode = newState;
 
-        // 7. Mostrar una notificación en pantalla para avisar al usuario
-        std::string message = "Modo 2 Jugadores: " + std::string(!currentState ? "ACTIVADO" : "DESACTIVADO");
+        // Opcional: Mostrar notificación rápida
+        std::string message = newState ? "Modo 2 Jugadores Activado" : "Modo 1 Jugador Activado";
         Notification::create(message, NotificationIcon::Info)->show();
     }
 };
