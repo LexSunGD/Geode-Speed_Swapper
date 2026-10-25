@@ -4,7 +4,8 @@ using namespace geode::prelude;
 
 MenuVelocidad* MenuVelocidad::create(float velocidadActual) {
     auto ret = new MenuVelocidad();
-    if (ret && ret->initAnchored(280.f, 180.f, velocidadActual)) {
+    // Llamamos a init pasando la velocidad, la ventana interna se configura dentro
+    if (ret && ret->init(velocidadActual)) {
         ret->autorelease();
         return ret;
     }
@@ -12,23 +13,35 @@ MenuVelocidad* MenuVelocidad::create(float velocidadActual) {
     return nullptr;
 }
 
-bool MenuVelocidad::setup(float velocidadActual) {
+bool MenuVelocidad::init(float velocidadActual) {
     m_velocidadSeleccionada = velocidadActual;
-    this->setTitle("Select Speed");
+
+    // Usamos el constructor nativo de fondos de Geode tal cual tu referencia
+    if (!Popup::init(280, 180, "GJ_square02.png"))
+        return false;
+
+    this->setTitle("Select Speed", "bigFont.fnt");
 
     auto menu = CCMenu::create();
     menu->setPosition({0.f, 0.f});
     m_mainLayer->addChild(menu);
 
+    // Los nombres de los portales de velocidad correctos en GD
     std::vector<std::string> sprites = {"speed00_001.png", "speed01_001.png", "speed02_001.png", "speed03_001.png", "speed04_001.png"};
     float startX = 40.f;
 
     for (size_t i = 0; i < sprites.size(); ++i) {
-        auto btn = CCMenuItemSpriteExtra::create(
-            CCSprite::createWithSpriteFrameName(sprites[i].c_str()), 
-            this, 
-            menu_selector(MenuVelocidad::onSelectSpeed)
-        );
+        auto normalImage = CCSprite::createWithSpriteFrameName(sprites[i].c_str());
+        if (!normalImage) continue;
+
+        // Implementamos el mismo sistema Lambda moderno de tu referencia (CCMenuItemExt)
+        geode::Ref<CCMenuItemSpriteExtra> btn = CCMenuItemExt::createSpriteExtra(normalImage, [this](CCObject* sender) {
+            std::vector<float> valores = { 0.7f, 0.9f, 1.1f, 1.3f, 1.6f };
+            m_velocidadSeleccionada = valores[sender->getTag()];
+            actualizarTexto(m_velocidadSeleccionada);
+            manejarOpacidad(m_velocidadSeleccionada);
+        });
+
         btn->setTag(static_cast<int>(i));
         btn->setPosition({ startX + (i * 50.f), 105.f });
         menu->addChild(btn);
@@ -57,13 +70,6 @@ bool MenuVelocidad::setup(float velocidadActual) {
     return true;
 }
 
-void MenuVelocidad::onSelectSpeed(CCObject* sender) {
-    std::vector<float> valores = { 0.7f, 0.9f, 1.1f, 1.3f, 1.6f };
-    m_velocidadSeleccionada = valores[sender->getTag()];
-    actualizarTexto(m_velocidadSeleccionada);
-    manejarOpacidad(m_velocidadSeleccionada);
-}
-
 void MenuVelocidad::actualizarTexto(float valor) {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(1) << valor;
@@ -81,7 +87,8 @@ void MenuVelocidad::manejarOpacidad(float valor) {
     }
 }
 
+// Guarda la velocidad en las configuraciones del mod únicamente al cerrar con la X
 void MenuVelocidad::onClose(CCObject* sender) {
     Mod::get()->setSettingValue("multiplicador-velocidad", static_cast<double>(m_velocidadSeleccionada));
-    geode::Popup<float>::onClose(sender); // 👈 Corregido el cierre explícito de la clase base
+    Popup::onClose(sender); // Llama al cierre base directo como tu ejemplo
 }
