@@ -6,12 +6,26 @@
 		"mac": "2.2081",
 		"ios": "2.2081"
 	},
-	"id": "lexsungd.two",
+	"id": "lexsungd.speed_swapper",
 	"version": "1.0.0",
-	"name": "Two Player Swapper",
+	"name": "Speed Swapper",
 	"developer": "LexSunGD",
 	"description": "description",
 	"repository": "githubcom",
-	"tags": [],
-	"settings": {}
+	"dependencies": {
+		"geode.node-ids": {
+			"version": "v1.23.3",
+			"importance": "required",
+		}
+	"settings": {
+        "velocidad-configurada": {
+            "name": "Custom Speed Value",
+            "description": "Define la velocidad del cubo al activar el boton de pausa (ej: 0.5 o 1.5)",
+            "type": "float",
+            "default": 0.5,
+            "min": 0.1,
+            "max": 5.0
+		}
+    }
+	}
 }
