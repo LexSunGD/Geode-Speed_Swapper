@@ -4,36 +4,45 @@
 using namespace geode::prelude;
 
 class $modify(MyPauseLayer, PauseLayer) {
-    bool init() {
-        if (!PauseLayer::init()) return false;
+    // CORRECCIÓN: Ahora acepta el parámetro 'bool unfocused'
+    bool init(bool unfocused) {
+        // CORRECCIÓN: Se le pasa el parámetro a la función original
+        if (!PauseLayer::init(unfocused)) return false;
 
-        // 1. Obtener el menú de botones de la izquierda (donde suelen ir los botones extra)
+        // Tu código para agregar el botón aquí abajo...
         auto leftMenu = this->getChildByID("left-button-menu");
-        if (!leftMenu) return true; // Si no existe, previene un crash
+        if (!leftMenu) return true;
 
-        // 2. Crear el sprite del botón (puedes usar un icono existente del juego)
         auto buttonSprite = CCSprite::createWithSpriteFrameName("GJ_playBtn2_001.png");
-        buttonSprite->setScale(0.5f); // Ajustar tamaño ya que el sprite original es grande
+        buttonSprite->setScale(0.5f);
 
-        // 3. Crear el botón que llamará a nuestra función personalizada
         auto speedButton = CCMenuItemSpriteExtra::create(
             buttonSprite,
             this,
             menu_selector(MyPauseLayer::onChangeSpeedButtonPressed)
         );
 
-        // 4. Agregar el botón al menú y ordenar los elementos
         leftMenu->addChild(speedButton);
         leftMenu->updateLayout();
 
         return true;
     }
 
-    // Función que se ejecuta al presionar el botón
     void onChangeSpeedButtonPressed(CCObject* sender) {
-        // Obtener la instancia activa de PlayLayer (el nivel en progreso)
         auto playLayer = PlayLayer::get();
-        
+        if (playLayer) {
+            if (playLayer->m_player1) {
+                playLayer->m_player1->m_playerSpeed = 1.6f; 
+            }
+            if (playLayer->m_player2) {
+                playLayer->m_player2->m_playerSpeed = 1.6f;
+            }
+            Notification::create("¡Velocidad Cambiada!", NotificationIcon::Success)->show();
+        } else {
+            Notification::create("No estás en un nivel", NotificationIcon::Error)->show();
+        }
+    }
+};
         if (playLayer) {
             // Modificar la velocidad del Jugador 1
             if (playLayer->m_player1) {
