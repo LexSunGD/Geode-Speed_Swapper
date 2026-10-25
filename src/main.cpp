@@ -3,50 +3,54 @@
 
 using namespace geode::prelude;
 
-class $modify(PauseLayer) {
+class $modify(MyPauseLayer, PauseLayer) {
     bool init() {
         if (!PauseLayer::init()) return false;
 
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || !playLayer->m_levelSettings) return true;
+        // 1. Obtener el menú de botones de la izquierda (donde suelen ir los botones extra)
+        auto leftMenu = this->getChildByID("left-button-menu");
+        if (!leftMenu) return true; // Si no existe, previene un crash
 
-        // 1. Buscar el menú derecho original de la pausa
-        auto menu = this->getChildByID("right-button-menu");
-        if (!menu) return true;
+        // 2. Crear el sprite del botón (puedes usar un icono existente del juego)
+        auto buttonSprite = CCSprite::createWithSpriteFrameName("GJ_playBtn2_001.png");
+        buttonSprite->setScale(0.5f); // Ajustar tamaño ya que el sprite original es grande
 
-        // 2. Crear los sprites circulares (Verde para Activo, Rojo para Desactivo)
-        auto spriteOn = CCSprite::createWithSpriteFrameName("GJ_button_01.png"); 
-        auto iconOn = CCSprite::createWithSpriteFrameName("GJ_editBtn_001.png");
-        iconOn->setPosition(spriteOn->getContentSize() / 2);
-        spriteOn->addChild(iconOn);
-
-        auto spriteOff = CCSprite::createWithSpriteFrameName("GJ_button_02.png"); 
-        auto iconOff = CCSprite::createWithSpriteFrameName("GJ_editBtn_001.png");
-        iconOff->setPosition(spriteOff->getContentSize() / 2);
-        spriteOff->addChild(iconOff);
-
-        // 3. Crear el botón interruptor e iniciarlo según la configuración del nivel
-        auto toggleBtn = CCMenuItemToggler::create(
-            spriteOff, 
-            spriteOn, 
+        // 3. Crear el botón que llamará a nuestra función personalizada
+        auto speedButton = CCMenuItemSpriteExtra::create(
+            buttonSprite,
             this,
-            menu_selector(PauseLayer::onToggleTwoPlayer)
+            menu_selector(MyPauseLayer::onChangeSpeedButtonPressed)
         );
-        toggleBtn->toggle(playLayer->m_levelSettings->m_twoPlayerMode);
-        toggleBtn->setID("toggle-2p-button"_spr);
 
-        // 4. Añadir al menú lateral
-        menu->addChild(toggleBtn);
-        menu->updateLayout();
+        // 4. Agregar el botón al menú y ordenar los elementos
+        leftMenu->addChild(speedButton);
+        leftMenu->updateLayout();
 
         return true;
     }
 
-    // 5. Función para alternar el estado apuntando a m_levelSettings
-    void onToggleTwoPlayer(CCObject* sender) {
+    // Función que se ejecuta al presionar el botón
+    void onChangeSpeedButtonPressed(CCObject* sender) {
+        // Obtener la instancia activa de PlayLayer (el nivel en progreso)
         auto playLayer = PlayLayer::get();
-        if (playLayer && playLayer->m_levelSettings) {
-            playLayer->m_levelSettings->m_twoPlayerMode = !playLayer->m_levelSettings->m_twoPlayerMode;
+        
+        if (playLayer) {
+            // Modificar la velocidad del Jugador 1
+            if (playLayer->m_player1) {
+                // 1.6f es la velocidad por defecto (1x). 
+                // Puedes cambiarlo a 1.25f (0.5x), 2.1f (2x), 2.5f (3x), 3.1f (4x)
+                playLayer->m_player1->m_playerSpeed = 1.6f; 
+            }
+            
+            // Modificar la velocidad del Jugador 2 (Modo Dual)
+            if (playLayer->m_player2) {
+                playLayer->m_player2->m_playerSpeed = 1.6f;
+            }
+
+            // Notificación visual dentro del juego para confirmar el cambio
+            Notification::create("¡Velocidad Cambiada!", NotificationIcon::Success)->show();
+        } else {
+            Notification::create("No estás en un nivel", NotificationIcon::Error)->show();
         }
     }
 };
