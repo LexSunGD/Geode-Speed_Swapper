@@ -5,15 +5,15 @@
 
 using namespace geode::prelude;
 
-// Heredamos de Popup puro sin plantillas, igual que tu referencia
-class MenuVelocidad : public geode::Popup<> {
+// Cambiamos a std::string const& para cumplir los requisitos estrictos del SDK de Geode
+class MenuVelocidad : public geode::Popup<std::string const&> {
 protected:
     float m_velocidadSeleccionada;
     TextInput* m_inputCustom;
     std::vector<geode::Ref<CCMenuItemSpriteExtra>> m_botonesVelocidad;
 
-    // Inicializador nativo compatible de Geode
-    bool init(float velocidadActual);
+    // Firmas de inicialización adaptadas
+    bool setup(std::string const& value) override;
     void onClose(cocos2d::CCObject* sender) override;
 
     void actualizarTexto(float valor);
