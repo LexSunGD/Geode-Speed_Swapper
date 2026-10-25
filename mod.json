@@ -22,8 +22,7 @@
 	"settings": {
 		"velocidad-configurada": {
 			"name": "Custom Speed Value",
-			"description": "Define la velocidad del cubo al activar el boton de pausa (ej: 0.5 o 1.5)",
-			"type": "float",
+			"description": "Define la velocidad del cubo",
 			"default": 0.5,
 			"min": 0.0,
 			"max": 5.0
