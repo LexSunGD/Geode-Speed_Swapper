@@ -6,21 +6,15 @@ class MenuVelocidad : public geode::Popup<float> {
 protected:
     float m_velocidadSeleccionada;
     geode::TextInput* m_inputCustom;
-    
-    // Lista de botones para poder aplicarles efectos visuales (saber cuál está activo)
-    std::vector<CCMenuItemSpriteExtra*> m_botonesVelocidad;
+    std::vector<cocos2d::CCMenuItemSpriteExtra*> m_botonesVelocidad;
 
     bool setup(float velocidadActual) override;
-    
-    // Métodos internos para manejar la lógica
-    void actualizarInputTexto(float valor);
-    void seleccionarBotonPorVelocidad(float valor);
+    void onClose(cocos2d::CCObject* sender) override; // Aplicará la velocidad al cerrar
+
+    void actualizarTexto(float valor);
+    void manejarOpacidad(float valor);
 
 public:
     static MenuVelocidad* create(float velocidadActual);
-    
-    // Callbacks
-    void onSelectSpeed(CCObject* sender);
-    void onTextChanged(std::string const& text);
-    void onGuardar(CCObject* sender);
+    void onSelectSpeed(cocos2d::CCObject* sender);
 };
