@@ -4,7 +4,6 @@ using namespace geode::prelude;
 
 MenuVelocidad* MenuVelocidad::create(float velocidadActual) {
     auto ret = new MenuVelocidad();
-    // initAnchored inicializa la clase base Popup automáticamente
     if (ret && ret->initAnchored(280.f, 180.f, velocidadActual)) {
         ret->autorelease();
         return ret;
@@ -25,7 +24,11 @@ bool MenuVelocidad::setup(float velocidadActual) {
     float startX = 40.f;
 
     for (size_t i = 0; i < sprites.size(); ++i) {
-        auto btn = CCMenuItemSpriteExtra::create(CCSprite::createWithSpriteFrameName(sprites[i].c_str()), this, menu_selector(MenuVelocidad::onSelectSpeed));
+        auto btn = CCMenuItemSpriteExtra::create(
+            CCSprite::createWithSpriteFrameName(sprites[i].c_str()), 
+            this, 
+            menu_selector(MenuVelocidad::onSelectSpeed)
+        );
         btn->setTag(static_cast<int>(i));
         btn->setPosition({ startX + (i * 50.f), 105.f });
         menu->addChild(btn);
@@ -71,15 +74,14 @@ void MenuVelocidad::manejarOpacidad(float valor) {
     std::vector<float> valores = { 0.7f, 0.9f, 1.1f, 1.3f, 1.6f };
     for (size_t i = 0; i < m_botonesVelocidad.size(); ++i) {
         if (std::fabs(valores[i] - valor) < 0.01f) {
-            m_botonesVelocidad[i]->setOpacity(255); // Sin opacidad (activo)
+            m_botonesVelocidad[i]->setOpacity(255);
         } else {
-            m_botonesVelocidad[i]->setOpacity(100); // Con opacidad (inactivo / modo custom)
+            m_botonesVelocidad[i]->setOpacity(100);
         }
     }
 }
 
-// Ocurre estrictamente al tocar la 'X' para cerrar
 void MenuVelocidad::onClose(CCObject* sender) {
     Mod::get()->setSettingValue("multiplicador-velocidad", static_cast<double>(m_velocidadSeleccionada));
-    Popup<float>::onClose(sender);
+    geode::Popup<float>::onClose(sender); // 👈 Corregido el cierre explícito de la clase base
 }
