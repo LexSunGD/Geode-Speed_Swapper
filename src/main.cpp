@@ -1,9 +1,10 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PlayerObject.hpp>
 #include <Geode/modify/PauseLayer.hpp>
-#include "MenuVelocidad.hpp"
 
 using namespace geode::prelude;
+
+#include "MenuVelocidad.hpp"
 
 class $modify(MyPlayerObject, PlayerObject) {
     void update(float dt) {
