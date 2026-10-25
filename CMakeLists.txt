@@ -8,11 +8,12 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-project(TwoPlayerSwapper VERSION 1.0.0)
+project(SpeedSwapper VERSION 1.0.0)
 
 add_library(${PROJECT_NAME} SHARED
-    src/*.cpp
-    src/*.hpp
+    src/main.cpp
+    src/MenuVelocidad.cpp
+    src/MenuVelocidad.hpp
     # Add any extra C++ source files here
 )
 
