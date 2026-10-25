@@ -39,7 +39,7 @@ class $modify(MyPauseLayer, PauseLayer) {
 
         // Creamos los estados visuales del botón (Activado / Desactivado)
         auto sprOn = CircleButtonSprite::createWithSpriteFrameName("GJ_plusBtn_001.png", 1.0f, CircleBaseColor::Green);
-        auto sprOff = CircleButtonSprite::createWithSpriteFrameName("GJ_plusBtn_001.png", 1.0f, CircleBaseColor::DarkGray);
+        auto sprOff = CircleButtonSprite::createWithSpriteFrameName("GJ_plusBtn_001.png", 1.0f, CircleBaseColor::Gray);
 
         auto toggler = CCMenuItemToggler::create(
             sprOff, sprOn, this, menu_selector(MyPauseLayer::onToggleVelocidad)
