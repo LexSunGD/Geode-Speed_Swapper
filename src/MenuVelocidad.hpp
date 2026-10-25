@@ -3,16 +3,13 @@
 #include <Geode/ui/Popup.hpp>
 #include <Geode/ui/TextInput.hpp>
 
-// Usamos el preludio de Geode para que reconozca los componentes nativos de Cocos2d como CCMenuItemSpriteExtra
-using namespace geode::prelude;
-
-class MenuVelocidad : public Popup<float> {
+class MenuVelocidad : public geode::Popup<float> {
 protected:
     float m_velocidadSeleccionada;
-    TextInput* m_inputCustom;
-    std::vector<CCMenuItemSpriteExtra*> m_botonesVelocidad;
+    geode::TextInput* m_inputCustom;
+    std::vector<cocos2d::CCMenuItemSpriteExtra*> m_botonesVelocidad;
 
-    // Métodos obligatorios heredados correctamente
+    // Firmas de inicialización nativa de Geode Popup
     bool setup(float velocidadActual) override;
     void onClose(cocos2d::CCObject* sender) override;
 
