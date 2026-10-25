@@ -4,6 +4,7 @@ using namespace geode::prelude;
 
 MenuVelocidad* MenuVelocidad::create(float velocidadActual) {
     auto ret = new MenuVelocidad();
+    // initAnchored inicializa la clase base Popup automáticamente
     if (ret && ret->initAnchored(280.f, 180.f, velocidadActual)) {
         ret->autorelease();
         return ret;
